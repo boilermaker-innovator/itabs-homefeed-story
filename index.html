@@ -3,209 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I Was Doom Scrolling at the Markets | iTabs</title>
+    <title>Your Personal HomeFeed | iTabs</title>
+    <meta name="description" content="What if your feed was yours? A new way to capture your own thinking — not other people's highlights.">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Your Personal HomeFeed">
+    <meta property="og:description" content="Most people chase other people's thoughts because they don't have a place to keep their own. That changes now.">
+    <meta property="og:url" content="https://boilermaker-innovator.github.io/itabs-homefeed-story/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="iTabs">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Your Personal HomeFeed">
+    <meta name="twitter:description" content="Most people chase other people's thoughts because they don't have a place to keep their own. That changes now.">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --bg: #080e1a;
             --bg-card: #0d1525;
-            --bg-modal: #111e33;
+            --bg-tertiary: #111e33;
             --text: #ddeeff;
             --text-muted: #6080a8;
             --accent: #06b6d4;
-            --accent-dim: rgba(6,182,212,0.12);
-            --accent-border: rgba(6,182,212,0.3);
-            --highlight: rgba(6,182,212,0.1);
-            --highlight-border: rgba(6,182,212,0.35);
+            --accent-dim: rgba(6,182,212,0.1);
+            --accent-border: rgba(6,182,212,0.25);
+            --transition: 0.2s ease;
         }
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Lora', Georgia, serif;
-            line-height: 1.85;
-            font-size: 17px;
-        }
+        html { scroll-behavior: smooth; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
 
-        /* Header */
+        /* ===================== HEADER ===================== */
         .site-header {
             padding: 14px 24px;
-            border-bottom: 1px solid rgba(6,182,212,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
+            border-bottom: 1px solid var(--accent-border);
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0;
             background: rgba(8,14,26,0.97);
             backdrop-filter: blur(10px);
-            z-index: 50;
+            z-index: 100;
         }
-        .site-logo {
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            font-size: 15px;
-            color: var(--accent);
-            letter-spacing: 0.08em;
-        }
-        .back-btn {
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            color: var(--text-muted);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color 0.15s;
-        }
-        .back-btn:hover { color: var(--accent); }
+        .site-logo { font-weight: 700; font-size: 15px; color: var(--accent); letter-spacing: 0.08em; }
+        .header-sub { font-size: 12px; color: var(--text-muted); }
 
-        /* Story container */
+        /* ===================== SLIDER SECTION ===================== */
+        .slider-section {
+            height: 100svh;
+            max-height: 700px;
+            position: relative;
+            border-bottom: 1px solid var(--accent-border);
+        }
+        .slider-container { max-width: 430px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; }
+
+        .progress-container { display: flex; gap: 4px; padding: 12px 16px 8px; position: absolute; top: 0; left: 0; right: 0; z-index: 10; background: linear-gradient(to bottom, rgba(8,14,26,0.95), transparent); }
+        .progress-segment { flex: 1; height: 3px; background: rgba(255,255,255,0.15); border-radius: 2px; transition: background var(--transition); }
+        .progress-segment.viewed { background: rgba(6,182,212,0.4); }
+        .progress-segment.active { background: var(--accent); }
+
+        .cards-wrapper { flex: 1; position: relative; overflow: hidden; }
+        .card { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; transform: translateX(100%); transition: all 0.3s ease; pointer-events: none; }
+        .card.active { opacity: 1; transform: translateX(0); pointer-events: all; }
+        .card.prev { opacity: 0; transform: translateX(-100%); }
+
+        .card-hero { padding: 52px 20px 20px; min-height: 38%; display: flex; flex-direction: column; justify-content: flex-end; }
+        .hero-default { background: linear-gradient(135deg, #0d1f3c 0%, #080e1a 100%); }
+        .hero-teal    { background: linear-gradient(135deg, #0c4a5e 0%, #062030 100%); }
+        .hero-cyan    { background: linear-gradient(135deg, #0e3d52 0%, #071820 100%); }
+        .hero-amber   { background: linear-gradient(135deg, #3d1f06 0%, #1a0c02 100%); }
+        .hero-green   { background: linear-gradient(135deg, #0a2e1a 0%, #041208 100%); }
+        .hero-red     { background: linear-gradient(135deg, #2e0d0d 0%, #120404 100%); }
+
+        .card-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.15em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+        .tag-teal  { color: #67e8f9; } .tag-amber { color: #fcd34d; } .tag-green { color: #6ee7b7; } .tag-red { color: #fca5a5; }
+        .card-headline { font-size: clamp(20px, 5vw, 26px); font-weight: 700; line-height: 1.25; color: var(--text); }
+        .hero-default em, .hero-teal em, .hero-cyan em { color: #67e8f9; font-style: normal; }
+        .hero-amber em { color: #fcd34d; font-style: normal; }
+        .hero-green em { color: #6ee7b7; font-style: normal; }
+        .hero-red   em { color: #fca5a5; font-style: normal; }
+
+        .card-body { flex: 1; padding: 20px; background: var(--bg-card); overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+        .card-summary { font-size: 15px; color: var(--text-muted); line-height: 1.7; }
+        .analogy-box { background: var(--bg-tertiary); border-radius: 12px; padding: 14px 16px; border-left: 3px solid var(--accent); }
+        .analogy-title { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+        .analogy-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+        .i-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+        .i-button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: 20px; color: var(--accent); font-size: 13px; font-weight: 500; cursor: pointer; transition: all var(--transition); }
+        .i-button:hover { background: rgba(6,182,212,0.18); }
+        .i-dot { width: 18px; height: 18px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #000; flex-shrink: 0; }
+
+        .scroll-cta { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 20px; background: linear-gradient(135deg, #0891b2, #06b6d4); border: none; border-radius: 12px; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity var(--transition); text-decoration: none; }
+        .scroll-cta:hover { opacity: 0.9; }
+
+        .nav-area { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--bg-card); border-top: 1px solid var(--accent-border); }
+        .nav-btn { background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: 8px; color: var(--text); width: 40px; height: 40px; font-size: 18px; cursor: pointer; transition: background var(--transition); }
+        .nav-btn:hover:not(:disabled) { background: rgba(6,182,212,0.18); }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .card-counter { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+        /* ===================== STORY SECTION ===================== */
+        .story-section { font-family: 'Lora', Georgia, serif; }
+
         .story-wrap { max-width: 660px; margin: 0 auto; padding: 52px 24px 100px; }
 
-        /* Meta */
-        .story-meta {
-            font-family: 'Inter', sans-serif;
-            font-size: 11px;
-            color: var(--text-muted);
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-        }
+        .story-meta { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 20px; }
+        .story-title { font-size: clamp(26px, 5vw, 40px); font-weight: 600; line-height: 1.2; margin-bottom: 12px; }
+        .story-subtitle { font-size: 18px; color: var(--text-muted); font-style: italic; margin-bottom: 44px; line-height: 1.6; }
 
-        /* Title */
-        .story-title {
-            font-size: clamp(26px, 5vw, 40px);
-            font-weight: 600;
-            line-height: 1.2;
-            margin-bottom: 12px;
-            color: var(--text);
-        }
-        .story-subtitle {
-            font-size: 18px;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: 44px;
-            line-height: 1.6;
-        }
+        hr { border: none; border-top: 1px solid var(--accent-border); margin: 40px 0; }
 
-        hr { border: none; border-top: 1px solid rgba(6,182,212,0.1); margin: 40px 0; }
+        h2 { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin: 48px 0 20px; }
 
-        h2 {
-            font-family: 'Inter', sans-serif;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin: 48px 0 20px;
-        }
+        .story-section p { margin-bottom: 24px; color: var(--text); line-height: 1.85; font-size: 17px; }
 
-        p { margin-bottom: 24px; color: var(--text); }
+        .pull-quote { border-left: 2px solid var(--accent); padding: 14px 20px; margin: 32px 0; background: var(--accent-dim); border-radius: 0 10px 10px 0; font-style: italic; font-size: 19px; color: #a8e6f0; line-height: 1.65; }
 
-        .pull-quote {
-            border-left: 2px solid var(--accent);
-            padding: 14px 20px;
-            margin: 32px 0;
-            background: var(--accent-dim);
-            border-radius: 0 10px 10px 0;
-            font-style: italic;
-            font-size: 19px;
-            color: #a8e6f0;
-            line-height: 1.65;
-        }
-
-        .info-box {
-            background: var(--bg-card);
-            border: 1px solid var(--accent-border);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 32px 0;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            color: var(--text-muted);
-            line-height: 1.7;
-        }
-        .info-box-title {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 10px;
-        }
+        .info-box { background: var(--bg-card); border: 1px solid var(--accent-border); border-radius: 12px; padding: 20px; margin: 32px 0; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+        .info-box-title { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
         .info-box a { color: var(--accent); text-decoration: none; font-weight: 600; }
         .info-box a:hover { text-decoration: underline; }
 
-        /* Tappable highlights */
-        .tap {
-            background: var(--highlight);
-            border-bottom: 1px solid var(--highlight-border);
-            border-radius: 3px;
-            padding: 1px 4px;
-            cursor: pointer;
-            color: #7dd8e8;
-            transition: background 0.15s ease;
-        }
+        .tap { background: var(--accent-dim); border-bottom: 1px solid var(--accent-border); border-radius: 3px; padding: 1px 4px; cursor: pointer; color: #7dd8e8; transition: background 0.15s ease; }
         .tap:hover { background: rgba(6,182,212,0.2); }
-        .tap::after {
-            content: 'i';
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 14px;
-            height: 14px;
-            background: var(--accent);
-            color: #000;
-            font-family: 'Inter', sans-serif;
-            font-size: 9px;
-            font-weight: 700;
-            border-radius: 50%;
-            margin-left: 4px;
-            vertical-align: middle;
-        }
+        .tap::after { content: 'i'; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: var(--accent); color: #000; font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700; border-radius: 50%; margin-left: 4px; vertical-align: middle; }
 
         .final-lines { margin: 40px 0; }
-        .final-lines p {
-            font-size: 18px;
-            font-style: italic;
-            color: #7dd8e8;
-            margin-bottom: 6px;
-        }
+        .final-lines p { font-size: 18px; font-style: italic; color: #7dd8e8; margin-bottom: 6px; }
 
-        .author-block {
-            margin-top: 52px;
-            padding-top: 24px;
-            border-top: 1px solid rgba(6,182,212,0.1);
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.75;
-        }
+        .author-block { margin-top: 52px; padding-top: 24px; border-top: 1px solid var(--accent-border); font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-muted); line-height: 1.75; }
         .author-name { font-weight: 700; color: var(--text); margin-bottom: 4px; font-size: 14px; }
         .substack-link { color: var(--accent); text-decoration: none; }
         .substack-link:hover { text-decoration: underline; }
 
-        /* Modal */
-        .modal-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.8);
-            display: flex; align-items: flex-end; justify-content: center;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.2s ease;
-            z-index: 200;
-        }
+        /* ===================== MODAL ===================== */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 200; }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
-        .modal-sheet {
-            width: 100%; max-width: 660px;
-            background: var(--bg-modal);
-            border-radius: 20px 20px 0 0;
-            padding: 24px;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-            border-top: 1px solid var(--accent-border);
-        }
+        .modal-sheet { width: 100%; max-width: 660px; background: var(--bg-tertiary); border-radius: 20px 20px 0 0; padding: 24px; transform: translateY(100%); transition: transform 0.3s ease; border-top: 1px solid var(--accent-border); }
         .modal-overlay.active .modal-sheet { transform: translateY(0); }
         .modal-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 0 auto 20px; }
         .modal-term { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
@@ -216,164 +153,181 @@
 </head>
 <body>
 
+<!-- HEADER -->
 <header class="site-header">
     <span class="site-logo">iTabs</span>
-    <a href="https://itabs.substack.com" class="back-btn">← Back to Substack</a>
+    <span class="header-sub">itabs.substack.com</span>
 </header>
 
-<div class="story-wrap">
-
-    <div class="story-meta">Jon Gwynne · iTabs · 29 March 2026</div>
-
-    <h1 class="story-title">I Was Doom Scrolling at the Markets and Accidentally Built a Product</h1>
-    <p class="story-subtitle">A Sunday afternoon, a car park, and the idea that your own thoughts might be worth more than everyone else's.</p>
-
-    <hr>
-
-    <div class="info-box">
-        <div class="info-box-title">Watch this first — 3 minutes</div>
-        Harvard professor Arthur Brooks explains why boredom isn't the enemy. It's the default mode network switching on — the part of your brain that finds meaning. It's exactly what happened to me at the markets before I even knew it.<br><br>
-        <a href="https://youtu.be/orQKfIXMiA8" target="_blank">▶ You Need to Be Bored — Arthur Brooks, Harvard Business Review →</a>
+<!-- SLIDER -->
+<div class="slider-section" id="slider">
+    <div class="slider-container">
+        <div class="progress-container" id="progress"></div>
+        <div class="cards-wrapper" id="cardsWrapper"></div>
+        <div class="nav-area">
+            <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">←</button>
+            <span class="card-counter" id="counter">1 / 6</span>
+            <button class="nav-btn" id="nextBtn" onclick="navigate(1)">→</button>
+        </div>
     </div>
-
-    <p>Sunday afternoon. My wife disappears into an Asian food shop at the markets. I'm standing outside, phone in hand, doing what I always do when I have two minutes to myself.</p>
-
-    <p><span class="tap" data-term="Doom Scrolling" data-type="definition" data-content="Doom scrolling is the habit of endlessly consuming negative or mindless content — not because you want to, but because the feed is designed to keep you going. Harvard professor Arthur Brooks calls this the 'doom loop of meaning' — every time you reach for your phone when bored, it gets harder to find meaning in your life.">Doom scrolling.</span></p>
-
-    <p>You know the feeling. Something flashes past. You half laugh. Then it's gone. Five minutes later you couldn't tell anyone what you just saw. But you keep going anyway. The thumb just keeps moving.</p>
-
-    <p>And then something made me stop.</p>
-
-    <p>I caught myself mid-scroll and thought — <em>why am I actually doing this?</em></p>
-
-    <p>Not in a judgmental way. Just genuinely curious. What am I getting from this? The honest answer: almost nothing. A mild hit of something. Entertainment that evaporates the second it arrives. I wasn't learning anything. I wasn't connecting with anyone. I was just consuming. Other people's highlights. Other people's outrage. Other people's thoughts.</p>
-
-    <p>So I closed Instagram and opened <span class="tap" data-term="Missy" data-type="context" data-content="Missy is Jon's AI thinking partner — a persona built into the iTabs system that routes between different tools. Instead of doom scrolling, you open Missy and just start talking. Your brain shifts from passive consuming to active thinking. Named on International Women's Day 2026.">Missy</span> instead.</p>
-
-    <p>Missy is my AI thinking partner. I talk to her the way some people talk to a mate — out loud, half-formed, just working things through. And something shifted the moment I did.</p>
-
-    <p>Brooks talks about the <span class="tap" data-term="Default Mode Network" data-type="definition" data-content="The default mode network is a set of brain structures that switch on when you stop being cognitively occupied — when you're bored, waiting, or your mind wanders. It steers your thoughts toward big questions: What does my life mean? What do I want? Brooks says smartphones have nearly shut it off completely. Doom scrolling is the off switch.">default mode network</span> — the part of your brain that switches on when you stop being occupied. That's what switched on for me. Not because I put my phone down — but because I changed what I was doing with it.</p>
-
-    <hr>
-    <h2>The Thing Nobody Says About Social Media</h2>
-
-    <p>Within about ten minutes of just talking, I landed on something that felt true.</p>
-
-    <div class="pull-quote">Social media is built on one quiet lie — that other people's thoughts are more interesting than your own. They're not. You just never had anywhere to keep yours.</div>
-
-    <p>And it's not accidental. The whole business model depends on you not feeling quite enough on your own. Keep you slightly insecure. Keep you comparing. Keep you scrolling. That's not a side effect — that's the product.</p>
-
-    <p>It's <span class="tap" data-term="Peer Pressure at Scale" data-type="context" data-content="Social media operates on the same psychological mechanism as workplace bullying — conformity through fear of exclusion. When everyone performs outrage, you perform outrage. When everyone posts highlights, you post yours. Not because you want to. Because opting out feels dangerous. The difference is social media does this to billions of people simultaneously.">peer group pressure at scale.</span> The same mechanism as workplace bullying, just pointed at millions of people simultaneously.</p>
-
-    <p>And here's what really got me — when you DO leave something of yourself on social media — a comment, a reaction, a thought someone else's post triggered in you — <span class="tap" data-term="Your Thoughts on Their Property" data-type="why-it-matters" data-content="Every comment you've ever left on Facebook, LinkedIn, Instagram — that thinking is yours. But it lives on their servers, under their terms of service. You can't search it. You can't find it. You can't build on it. Your best thinking, scattered and gone forever. That's the problem HomeFeed solves.">it lives on their property. Forever.</span> Buried in their feed. You'll never find it again.</p>
-
-    <hr>
-    <h2>Then My 14 Year Old Walked In</h2>
-
-    <p>I'm sitting there thinking all this through, and my son walks into the room. Doesn't say hello. Doesn't ask what I'm doing. Just says:</p>
-
-    <div class="pull-quote">"Quantity over quality."</div>
-
-    <p>Then walks out. No context. No explanation. Just dropped it and left.</p>
-
-    <p>Kid accidentally summarised everything wrong with social media in four words and didn't even know it.</p>
-
-    <hr>
-    <h2>The AI Irony Nobody's Talking About</h2>
-
-    <p>Here's the thing that hit me next, and it's uncomfortable.</p>
-
-    <p><span class="tap" data-term="AI Was Built on Your Content" data-type="why-it-matters" data-content="Every major AI system was trained on content scraped from the internet — your writing, your photos, your creative work — often without explicit consent or compensation. Then that same AI generates more content that floods the same platforms. It's a loop where the individual contributes everything and gets very little back.">AI was built by consuming everyone's content.</span> Your photos. Your words. Your ideas. Scraped from the internet without asking. Fed into systems that learned from your creativity and gave you nothing back.</p>
-
-    <p>Then that same AI floods the same platforms with more content — built on what it took from you in the first place. It's a giant loop. The individual gets nothing. The platforms get everything.</p>
-
-    <div class="pull-quote">AI can improve your life — not through getting recognised, but through finding yourself. Because when you find yourself, you have better thoughts. You become more productive naturally. The recognition follows on its own.</div>
-
-    <hr>
-    <h2>What If Your Feed Was Yours?</h2>
-
-    <p>So I'm sitting in the car park waiting for my wife — she's moved from the Asian food shop to somewhere else now — and this idea starts forming.</p>
-
-    <p>What if instead of scrolling other people's content, you had a feed of your own thinking?</p>
-
-    <p>Not a journal. Not a note-taking app. A <em>feed.</em> Vertical scroll. Cards. The same frictionless mechanic as doom scrolling — but pointing inward instead of outward.</p>
-
-    <p>Every insight you have. Every blog idea from 2am. Every comment you left on someone else's post — now a card in your own feed instead of lost forever. And when a new thought hits, you tap <span class="tap" data-term="The + Button" data-type="definition" data-content="The + button is the most important feature in HomeFeed. Thought arrives — tap + — captured instantly. No friction. No app switching. The new card knows which existing idea triggered it, so your thinking tree builds itself naturally over time.">+</span> and a new card appears. One tap. Done.</p>
-
-    <p>The cards don't die. They <span class="tap" data-term="Living Cards" data-type="definition" data-content="A HomeFeed card isn't static. Scroll past an old thought three months later — something clicks that didn't before — tap + and add a new layer to that same card. Over time you can watch your thinking evolve. See who you were vs who you're becoming. That's not something social media ever gives you.">grow.</span></p>
-
-    <p>We're calling it <span class="tap" data-term="HomeFeed" data-type="definition" data-content="Your Personal HomeFeed. A private vertical-scroll feed of your own thinking — insights, blog ideas, product thoughts, quotes — all captured as iTabs cards. Private by default. Living cards that grow as your thinking evolves. The family layer lets you share one card at a time with people you trust. Social media comes to you. HomeFeed waits for you.">HomeFeed.</span></p>
-
-    <p><em>Your Personal HomeFeed.</em></p>
-
-    <p>Brooks says boredom is where meaning lives. I think he's right. But he doesn't say what to do when the big thoughts surface. <em>HomeFeed is the answer to that gap. Boredom surfaces the question. HomeFeed captures the answer.</em></p>
-
-    <hr>
-    <h2>Ideas Need Time to Breathe</h2>
-
-    <p>Social media demands you react instantly. Something happens — politically, personally, professionally — and everyone posts within minutes. Half formed. Emotional. Then you regret it.</p>
-
-    <p>HomeFeed flips the timing. You have a strong opinion today. It goes into your private feed as a card. You sit with it. Add to it three days later. See it from a different angle a week on. Then — when it's actually ready — you push it out.</p>
-
-    <p>Not a <span class="tap" data-term="Hot Take vs Considered Position" data-type="why-it-matters" data-content="People can feel the difference between a hot take and a genuinely considered position. Hot takes get argued with or ignored. Considered positions shift thinking. The difference isn't intelligence — it's time. HomeFeed gives your ideas the time they need before you share them.">hot take. A considered position.</span></p>
-
-    <p><em>HomeFeed is the incubator between your first thought and your best one.</em></p>
-
-    <hr>
-    <h2>My Stepson and the AFL Finals</h2>
-
-    <p>My stepson spends hours drawing up the <span class="tap" data-term="AFL Finals Predictions" data-type="context" data-content="Every year he maps out the whole finals series on paper — who plays who, who he thinks will win each match, who'll take the flag. He runs the scenarios. Works through the logic. It's genuine analytical thinking happening on a piece of paper that gets thrown out at the end of the season.">AFL finals on paper.</span> Predicting who'll win the flag. Working through the logic of the whole season. He called it correctly once — years ago.</p>
-
-    <p>And nobody captured it.</p>
-
-    <p>What if that was his first HomeFeed card? Not AI. Not tech. Just: photo of his finals on paper, date, his prediction. At the end of the season, that card surfaces back. He was right. That moment is his. Forever.</p>
-
-    <p>That's <span class="tap" data-term="Self Worth from the Inside" data-type="why-it-matters" data-content="Social media builds self worth from the outside in — you post something, wait for likes, the likes tell you if it was good. HomeFeed builds self worth from the inside out — you capture your thinking, watch it grow, look back and see how far you've come. Nobody else's validation required.">self worth built from the inside.</span> Not from likes.</p>
-
-    <p>Australia just banned social media for under 16s. Good call. But banning something doesn't fill the gap. You need something better to point kids toward — not another platform, just somewhere to keep their own thinking.</p>
-
-    <hr>
-    <h2>Social Media Comes to You. HomeFeed Waits for You.</h2>
-
-    <p>Here's the design principle I want to lock in early — because this is where every good idea goes wrong.</p>
-
-    <p>The second you add <span class="tap" data-term="The Danger of Notifications" data-type="why-it-matters" data-content="Every good personal tool eventually adds notifications to drive engagement. That's the moment it stops being a tool and becomes a platform. HomeFeed's core design principle: it never comes to you. No notifications. No algorithm. No engagement loop. You visit it on your terms.">notifications, suggested content, engagement metrics</span> — it becomes the thing you were running away from.</p>
-
-    <p>HomeFeed never comes to you. You go to it.</p>
-
-    <p>The only things that come to you are from people. Intentionally. One card at a time. Your stepson shares his AFL finals to the family feed. Someone whose thinking genuinely connects with yours surfaces one card — not their whole feed, just one thought.</p>
-
-    <p><em>Just people, occasionally, deliberately sharing a thought worth sharing.</em></p>
-
-    <hr>
-    <h2>Self Knowledge is the Protection</h2>
-
-    <p>A person who knows their own thinking is much harder to manipulate. By social media. By peer pressure. By workplace bullying. By politicians who say "speak up" while pointing you toward platforms designed for outrage, not thinking.</p>
-
-    <p>Brooks says get better at boredom and watch your life change. I think he's onto something even bigger — get better at capturing what boredom surfaces, and watch your thinking change.</p>
-
-    <div class="final-lines">
-        <p>Doom scrolling becomes mining.</p>
-        <p>Your scattered thoughts come home.</p>
-        <p>The feed builds itself just from how you already live.</p>
-    </div>
-
-    <p>I figured all of this out in a car park on a Sunday afternoon. Bored. Waiting. Doing nothing important.</p>
-
-    <p>Turns out changing what you look at on your phone changes how you think.</p>
-
-    <div class="pull-quote">Every other platform was built on your words.<br>This one gives them back to you.</div>
-
-    <hr>
-
-    <div class="author-block">
-        <div class="author-name">Jon Gwynne</div>
-        Perth boilermaker building iTabs — interactive card tools for people who think better than they type.<br>
-        Follow along at <a href="https://itabs.substack.com" class="substack-link">itabs.substack.com</a>
-    </div>
-
 </div>
 
+<!-- STORY -->
+<div class="story-section" id="story">
+    <div class="story-wrap">
+
+        <div class="story-meta">Jon Gwynne · iTabs · 29 March 2026</div>
+        <h1 class="story-title">I Was Doom Scrolling at the Markets and Accidentally Built a Product</h1>
+        <p class="story-subtitle">A Sunday afternoon, a car park, and the idea that your own thoughts might be worth more than everyone else's.</p>
+
+        <hr>
+
+        <div class="info-box">
+            <div class="info-box-title">Watch this first — 3 minutes</div>
+            Harvard professor Arthur Brooks explains why boredom isn't the enemy. It's the default mode network switching on — the part of your brain that finds meaning. It's exactly what happened to me at the markets.<br><br>
+            <a href="https://youtu.be/orQKfIXMiA8" target="_blank">▶ You Need to Be Bored — Arthur Brooks, Harvard Business Review →</a>
+        </div>
+
+        <p>Sunday afternoon. My wife disappears into an Asian food shop at the markets. I'm standing outside, phone in hand, doing what I always do when I have two minutes to myself.</p>
+
+        <p><span class="tap" data-term="Doom Scrolling" data-type="definition" data-content="Doom scrolling is the habit of endlessly consuming mindless content — not because you want to, but because the feed is designed to keep you going. Harvard professor Arthur Brooks calls this the 'doom loop of meaning' — every time you reach for your phone when bored, it gets harder to find meaning in your life.">Doom scrolling.</span></p>
+
+        <p>You know the feeling. Something flashes past. You half laugh. Then it's gone. Five minutes later you couldn't tell anyone what you just saw. But you keep going anyway. The thumb just keeps moving.</p>
+
+        <p>And then something made me stop.</p>
+
+        <p>I caught myself mid-scroll and thought — <em>why am I actually doing this?</em></p>
+
+        <p>Not in a judgmental way. Just genuinely curious. What am I getting from this? The honest answer: almost nothing. A mild hit of something. Entertainment that evaporates the second it arrives. I wasn't learning anything. I wasn't connecting with anyone. I was just consuming. Other people's highlights. Other people's outrage. Other people's thoughts.</p>
+
+        <p>So I closed Instagram and opened <span class="tap" data-term="Missy" data-type="context" data-content="Missy is Jon's AI thinking partner — a persona built into the iTabs system. Instead of doom scrolling, you open Missy and just start talking. Your brain shifts from passive consuming to active thinking. Named on International Women's Day 2026.">Missy</span> instead.</p>
+
+        <p>Missy is my AI thinking partner. I talk to her the way some people talk to a mate — out loud, half-formed, just working things through. And something shifted the moment I did.</p>
+
+        <p>Brooks talks about the <span class="tap" data-term="Default Mode Network" data-type="definition" data-content="The default mode network is a set of brain structures that switch on when you stop being cognitively occupied. It steers your thoughts toward big questions: What does my life mean? What do I want? Brooks says smartphones have nearly shut it off completely. Doom scrolling is the off switch.">default mode network</span> — the part of your brain that switches on when you stop being occupied. That's what switched on for me. Not because I put my phone down — but because I changed what I was doing with it.</p>
+
+        <hr>
+        <h2>The Thing Nobody Says About Social Media</h2>
+
+        <p>Within about ten minutes of just talking, I landed on something that felt true.</p>
+
+        <div class="pull-quote">Social media is built on one quiet lie — that other people's thoughts are more interesting than your own. They're not. You just never had anywhere to keep yours.</div>
+
+        <p>And it's not accidental. The whole business model depends on you not feeling quite enough on your own. Keep you slightly insecure. Keep you comparing. Keep you scrolling. That's not a side effect — that's the product.</p>
+
+        <p>It's <span class="tap" data-term="Peer Pressure at Scale" data-type="context" data-content="Social media operates on the same psychological mechanism as workplace bullying — conformity through fear of exclusion. When everyone performs outrage, you perform outrage. When everyone posts highlights, you post yours. Not because you want to. Because opting out feels dangerous. The difference is social media does this to billions of people simultaneously.">peer group pressure at scale.</span> The same mechanism as workplace bullying, just pointed at millions of people simultaneously.</p>
+
+        <p>And here's what really got me — when you DO leave something of yourself on social media — a comment, a reaction, a thought that someone else's post triggered in you — <span class="tap" data-term="Your Thoughts on Their Property" data-type="why-it-matters" data-content="Every comment you've ever left on Facebook, LinkedIn, Instagram — that thinking is yours. But it lives on their servers, under their terms of service. You can't search it. You can't build on it. Your best thinking, scattered and gone forever. That's the problem HomeFeed solves.">it lives on their property. Forever.</span> Buried in their feed. You'll never find it again.</p>
+
+        <hr>
+        <h2>Then My 14 Year Old Walked In</h2>
+
+        <p>I'm sitting there thinking all this through, and my son walks into the room. Doesn't say hello. Doesn't ask what I'm doing. Just says:</p>
+
+        <div class="pull-quote">"Quantity over quality."</div>
+
+        <p>Then walks out. No context. No explanation. Just dropped it and left.</p>
+
+        <p>Kid accidentally summarised everything wrong with social media in four words and didn't even know it.</p>
+
+        <hr>
+        <h2>The AI Irony Nobody's Talking About</h2>
+
+        <p>Here's the thing that hit me next, and it's uncomfortable.</p>
+
+        <p><span class="tap" data-term="AI Was Built on Your Content" data-type="why-it-matters" data-content="Every major AI system was trained on content scraped from the internet — your writing, your photos, your creative work — often without consent. Then that same AI generates more content that floods the same platforms. The individual contributes everything and gets very little back.">AI was built by consuming everyone's content.</span> Your photos. Your words. Your ideas. Scraped from the internet without asking. Fed into systems that learned from your creativity and gave you nothing back.</p>
+
+        <p>Then that same AI floods the same platforms with more content — built on what it took from you in the first place. It's a giant loop. The individual gets nothing. The platforms get everything.</p>
+
+        <div class="pull-quote">AI can improve your life — not through getting recognised, but through finding yourself. Because when you find yourself, you have better thoughts. You become more productive naturally. The recognition follows on its own.</div>
+
+        <hr>
+        <h2>What If Your Feed Was Yours?</h2>
+
+        <p>So I'm sitting in the car park waiting for my wife — she's moved from the Asian food shop to somewhere else now — and this idea starts forming.</p>
+
+        <p>What if instead of scrolling other people's content, you had a feed of your own thinking?</p>
+
+        <p>Not a journal. Not a note-taking app. A <em>feed.</em> Vertical scroll. Cards. The same frictionless mechanic as doom scrolling — but pointing inward instead of outward.</p>
+
+        <p>Every insight you have. Every blog idea from 2am. Every comment you left on someone else's post — now a card in your own feed. And when a new thought hits, you tap <span class="tap" data-term="The + Button" data-type="definition" data-content="The + button is the most important feature in HomeFeed. Thought arrives — tap + — captured instantly. No friction. No app switching. The new card knows which existing idea triggered it, so your thinking tree builds itself naturally over time.">+</span> and a new card appears. One tap. Done.</p>
+
+        <p>The cards don't die. They <span class="tap" data-term="Living Cards" data-type="definition" data-content="A HomeFeed card isn't static. Scroll past an old thought three months later — something clicks — tap + and add a new layer to that same card. Over time you can watch your thinking evolve. See who you were vs who you're becoming.">grow.</span></p>
+
+        <p>We're calling it <span class="tap" data-term="HomeFeed" data-type="definition" data-content="Your Personal HomeFeed. A private vertical-scroll feed of your own thinking — insights, blog ideas, product thoughts, quotes — all captured as iTabs cards. Private by default. Living cards that grow as your thinking evolves. Social media comes to you. HomeFeed waits for you.">HomeFeed.</span></p>
+
+        <p><em>Your Personal HomeFeed.</em></p>
+
+        <p>Brooks says boredom is where meaning lives. I think he's right. But he doesn't say what to do when the big thoughts surface. <em>HomeFeed is the answer to that gap. Boredom surfaces the question. HomeFeed captures the answer.</em></p>
+
+        <hr>
+        <h2>Ideas Need Time to Breathe</h2>
+
+        <p>Social media demands you react instantly. Something happens — politically, personally, professionally — and everyone posts within minutes. Half formed. Emotional. Then you regret it.</p>
+
+        <p>HomeFeed flips the timing. You have a strong opinion today. It goes into your private feed as a card. You sit with it. Add to it three days later. See it from a different angle a week on. Then — when it's actually ready — you push it out.</p>
+
+        <p>Not a <span class="tap" data-term="Hot Take vs Considered Position" data-type="why-it-matters" data-content="People can feel the difference between a hot take and a genuinely considered position. Hot takes get argued with or ignored. Considered positions shift thinking. The difference isn't intelligence — it's time. HomeFeed gives your ideas the time they need.">hot take. A considered position.</span></p>
+
+        <p><em>HomeFeed is the incubator between your first thought and your best one.</em></p>
+
+        <hr>
+        <h2>My Stepson and the AFL Finals</h2>
+
+        <p>My stepson spends hours drawing up the <span class="tap" data-term="AFL Finals Predictions" data-type="context" data-content="Every year he maps out the whole finals series on paper — who plays who, who he thinks will win each match, who'll take the flag. Genuine analytical thinking happening on a piece of paper that gets thrown out at the end of the season.">AFL finals on paper.</span> Predicting who'll win the flag. Working through the logic of the whole season. He called it correctly once — years ago.</p>
+
+        <p>And nobody captured it.</p>
+
+        <p>What if that was his first HomeFeed card? Not AI. Not tech. Just: photo of his finals on paper, date, his prediction. At the end of the season, that card surfaces back. He was right. That moment is his. Forever.</p>
+
+        <p>That's <span class="tap" data-term="Self Worth from the Inside" data-type="why-it-matters" data-content="Social media builds self worth from the outside in — you post, wait for likes, the likes tell you if it was good. HomeFeed builds it from the inside out — you capture your thinking, watch it grow, look back and see how far you've come. Nobody else's validation required.">self worth built from the inside.</span> Not from likes.</p>
+
+        <p>Australia just banned social media for under 16s. Good call. But banning something doesn't fill the gap. You need something better to point kids toward — not another platform, just somewhere to keep their own thinking.</p>
+
+        <hr>
+        <h2>Social Media Comes to You. HomeFeed Waits for You.</h2>
+
+        <p>Here's the design principle I want to lock in early — because this is where every good idea goes wrong.</p>
+
+        <p>The second you add <span class="tap" data-term="The Danger of Notifications" data-type="why-it-matters" data-content="Every good personal tool eventually adds notifications to drive engagement. That's the moment it stops being a tool and becomes a platform. HomeFeed's core rule: it never comes to you. No notifications. No algorithm. No engagement loop. You visit it on your terms.">notifications, suggested content, engagement metrics</span> — it becomes the thing you were running away from.</p>
+
+        <p>HomeFeed never comes to you. You go to it.</p>
+
+        <p>The only things that come to you are from people. Intentionally. One card at a time. Your stepson shares his AFL finals to the family feed. Someone whose thinking genuinely connects with yours surfaces one card — not their whole feed, just one thought.</p>
+
+        <p><em>Just people, occasionally, deliberately sharing a thought worth sharing.</em></p>
+
+        <hr>
+        <h2>Self Knowledge is the Protection</h2>
+
+        <p>A person who knows their own thinking is much harder to manipulate. By social media. By peer pressure. By workplace bullying. By politicians who say "speak up" while pointing you toward platforms designed for outrage, not thinking.</p>
+
+        <p>Brooks says get better at boredom and watch your life change. I think he's onto something even bigger — get better at capturing what boredom surfaces, and watch your thinking change.</p>
+
+        <div class="final-lines">
+            <p>Doom scrolling becomes mining.</p>
+            <p>Your scattered thoughts come home.</p>
+            <p>The feed builds itself just from how you already live.</p>
+        </div>
+
+        <p>I figured all of this out in a car park on a Sunday afternoon. Bored. Waiting. Doing nothing important.</p>
+
+        <p>Turns out changing what you look at on your phone changes how you think.</p>
+
+        <div class="pull-quote">Every other platform was built on your words.<br>This one gives them back to you.</div>
+
+        <hr>
+
+        <div class="author-block">
+            <div class="author-name">Jon Gwynne</div>
+            Perth boilermaker building iTabs — interactive card tools for people who think better than they type.<br>
+            Follow along at <a href="https://itabs.substack.com" class="substack-link">itabs.substack.com</a>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
     <div class="modal-sheet">
         <div class="modal-handle"></div>
@@ -385,24 +339,172 @@
 </div>
 
 <script>
+/* ===== SLIDER ===== */
+const cards = [
+    {
+        tag: "01 / THE PROBLEM", tagClass: "",
+        headline: "You're Scrolling Through <em>Everyone Else's</em> Thoughts",
+        heroClass: "hero-default",
+        summary: "Sunday afternoon. Wife's in a shop. Phone in hand. Doom scrolling. Half laughing at things I'll forget in 60 seconds. Then I asked myself — why am I doing this?",
+        analogy: null,
+        iButtons: [
+            { label: "What doom scrolling costs you", type: "why-it-matters", term: "Doom Scrolling", content: "It's not the time you lose. It's the thinking you never do. Every minute scrolling other people's content is a minute your own best ideas go uncaptured." },
+            { label: "The quiet lie", type: "definition", term: "The Quiet Lie", content: "Social media is built on one quiet lie — that other people's thoughts are more interesting than your own. They're not. You just never had anywhere to keep yours." }
+        ], scrollBtn: false
+    },
+    {
+        tag: "02 / THE INSIGHT", tagClass: "tag-red",
+        headline: "Your Best Thoughts <em>Live on Other People's</em> Property",
+        heroClass: "hero-red",
+        summary: "When you comment on someone's post — that thought is yours. But it lives on their property forever. Buried. You'll never find it again. Your thinking scattered across a thousand feeds.",
+        analogy: { title: "Think of it like this", text: "AI was built by consuming your words, your photos, your ideas — without asking. Then it floods those same platforms with more content. The individual gets nothing back." },
+        iButtons: [
+            { label: "Peer pressure at scale", type: "context", term: "Social Media as Peer Pressure", content: "Social media is the same mechanism as workplace bullying — just at millions of people simultaneously. When everyone performs outrage, you perform outrage. Not because you want to. Because opting out feels dangerous." }
+        ], scrollBtn: false
+    },
+    {
+        tag: "03 / THE FLIP", tagClass: "tag-teal",
+        headline: "What If <em>Doom Scrolling</em> Became Mining?",
+        heroClass: "hero-teal",
+        summary: "Your own thinking, served back to you. An insight from three months ago. A blog idea from 2am. A comment you left that was actually brilliant — now a card in your own feed. Tap + to add a new thought anytime.",
+        analogy: { title: "The flip", text: "Doom scrolling becomes mining. Your scattered thoughts come home. The feed builds itself just from how you already live." },
+        iButtons: [
+            { label: "How it captures comments", type: "why-it-matters", term: "Comment Capture", content: "You comment on someone's post — something clicks. That thought saves to YOUR feed as a card. Not their content. Your reaction. Your thinking triggered by theirs. Big difference." },
+            { label: "Social media vs HomeFeed", type: "related", term: "The Core Difference", content: "Social media comes to you — notifications, algorithms, engineered urgency. HomeFeed waits for you. No notifications. No algorithm. Just a place your thinking lives until you choose to visit." }
+        ], scrollBtn: false
+    },
+    {
+        tag: "04 / THE PRODUCT", tagClass: "tag-teal",
+        headline: "Your <em>Personal</em> HomeFeed",
+        heroClass: "hero-cyan",
+        summary: "Vertical scroll. Private by default. Living cards that grow as your thinking evolves. Filter by Blog Ideas, Product, Insights, Quotes. Tap + to add a new thought anytime.",
+        analogy: null,
+        iButtons: [
+            { label: "Living cards", type: "definition", term: "Living Cards", content: "A thought doesn't die when you capture it. It grows. Scroll past an old idea, something clicks, tap + and add a new layer. Over time you can see who you were vs who you're becoming." },
+            { label: "The family layer", type: "related", term: "Family Feed", content: "Your feed is private. But you can share one card intentionally to family. Your stepson shares his AFL finals prediction. You share an insight. No algorithm. No noise." }
+        ], scrollBtn: false
+    },
+    {
+        tag: "05 / THE SCIENCE", tagClass: "tag-amber",
+        headline: "Harvard Says You <em>Need</em> to Be Bored",
+        heroClass: "hero-amber",
+        summary: "Arthur Brooks at Harvard: the default mode network switches on when you stop being occupied. Doom scrolling shuts it off. That's the recipe for depression and hollowness.",
+        analogy: { title: "The gap Brooks doesn't fill", text: "Brooks says be bored more. Good advice. But he doesn't say what to do when the big thoughts surface. HomeFeed is the answer. Boredom surfaces the question. HomeFeed captures the answer." },
+        iButtons: [
+            { label: "The electric shock experiment", type: "context", term: "Dan Gilbert's Experiment", content: "Harvard psychologist Dan Gilbert put people in a room for 15 minutes with nothing to do — except a button that gave a painful electric shock. Most chose the shock over sitting with their own thoughts. That's how much we avoid boredom." }
+        ], scrollBtn: false
+    },
+    {
+        tag: "06 / THE TRUTH", tagClass: "tag-green",
+        headline: "<em>Self Knowledge</em> is the Protection",
+        heroClass: "hero-green",
+        summary: "A person who knows their own thinking is much harder to manipulate. I figured all of this out in a car park on a Sunday. Bored. Waiting. Turns out changing what you look at on your phone changes how you think.",
+        analogy: { title: "Every other platform was built on your words", text: "This one gives them back to you." },
+        iButtons: [
+            { label: "The win-win AI model", type: "related", term: "AI That Actually Helps", content: "AI that genuinely makes your life better means you naturally want more of it. Not because it's addictive. Because it's actually useful. Nobody had to trick anybody." }
+        ], scrollBtn: true
+    }
+];
+
+let currentCard = 0;
+const totalCards = cards.length;
 const modalOverlay = document.getElementById('modalOverlay');
 const modalTerm = document.getElementById('modalTerm');
 const modalType = document.getElementById('modalType');
 const modalContent = document.getElementById('modalContent');
-const typeLabels = { 'definition': 'Definition', 'context': 'Context', 'why-it-matters': 'Why It Matters', 'related': 'Related' };
+
+function init() {
+    const progress = document.getElementById('progress');
+    const wrapper = document.getElementById('cardsWrapper');
+    cards.forEach((card, i) => {
+        const seg = document.createElement('div');
+        seg.className = 'progress-segment' + (i === 0 ? ' active' : '');
+        progress.appendChild(seg);
+        wrapper.appendChild(buildCard(card, i));
+    });
+    document.getElementById('counter').textContent = `1 / ${totalCards}`;
+    document.getElementById('prevBtn').disabled = true;
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight') navigate(1);
+        if (e.key === 'ArrowLeft') navigate(-1);
+        if (e.key === 'Escape') closeModal();
+    });
+    let startX = 0;
+    const cw = document.getElementById('cardsWrapper');
+    cw.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    cw.addEventListener('touchend', e => {
+        const diff = startX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) navigate(diff > 0 ? 1 : -1);
+    });
+}
+
+function buildCard(card, index) {
+    const el = document.createElement('div');
+    el.className = 'card' + (index === 0 ? ' active' : '');
+    const analogyHTML = card.analogy ? `<div class="analogy-box"><div class="analogy-title">${card.analogy.title}</div><div class="analogy-text">${card.analogy.text}</div></div>` : '';
+    const iButtonsHTML = card.iButtons.length ? `<div class="i-buttons">${card.iButtons.map(b => `<button class="i-button" data-term="${b.term}" data-type="${b.type}" data-content="${encodeURIComponent(b.content)}"><span class="i-dot">i</span>${b.label}</button>`).join('')}</div>` : '';
+    const scrollBtnHTML = card.scrollBtn ? `<a href="#story" class="scroll-cta">Read the full story ↓</a>` : '';
+    el.innerHTML = `
+        <div class="card-hero ${card.heroClass}">
+            <div class="card-tag ${card.tagClass}">${card.tag}</div>
+            <h2 class="card-headline">${card.headline}</h2>
+        </div>
+        <div class="card-body">
+            <p class="card-summary">${card.summary}</p>
+            ${analogyHTML}
+            ${iButtonsHTML}
+            ${scrollBtnHTML}
+        </div>`;
+    el.querySelectorAll('.i-button').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            openModal(btn.dataset.term, btn.dataset.type, decodeURIComponent(btn.dataset.content));
+        });
+    });
+    return el;
+}
+
+function navigate(direction) {
+    const next = currentCard + direction;
+    if (next >= 0 && next < totalCards) updateCard(next);
+}
+
+function updateCard(index) {
+    document.querySelectorAll('.card').forEach((c, i) => {
+        c.classList.remove('active', 'prev');
+        if (i === index) c.classList.add('active');
+        else if (i < index) c.classList.add('prev');
+    });
+    document.querySelectorAll('.progress-segment').forEach((s, i) => {
+        s.classList.remove('active', 'viewed');
+        if (i === index) s.classList.add('active');
+        else if (i < index) s.classList.add('viewed');
+    });
+    currentCard = index;
+    document.getElementById('counter').textContent = `${index + 1} / ${totalCards}`;
+    document.getElementById('prevBtn').disabled = index === 0;
+    document.getElementById('nextBtn').disabled = index === totalCards - 1;
+}
+
+/* ===== MODAL (shared by slider + story) ===== */
+function openModal(term, type, content) {
+    const typeLabels = { 'definition': 'Definition', 'context': 'Context', 'why-it-matters': 'Why It Matters', 'related': 'Related' };
+    modalTerm.textContent = term;
+    modalType.textContent = typeLabels[type] || type;
+    modalContent.textContent = content;
+    modalOverlay.classList.add('active');
+}
+
+function closeModal() { modalOverlay.classList.remove('active'); }
 
 document.querySelectorAll('.tap').forEach(el => {
     el.addEventListener('click', e => {
         e.stopPropagation();
-        modalTerm.textContent = el.dataset.term;
-        modalType.textContent = typeLabels[el.dataset.type] || el.dataset.type;
-        modalContent.textContent = el.dataset.content;
-        modalOverlay.classList.add('active');
+        openModal(el.dataset.term, el.dataset.type, el.dataset.content);
     });
 });
 
-function closeModal() { modalOverlay.classList.remove('active'); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+init();
 </script>
 </body>
 </html>
